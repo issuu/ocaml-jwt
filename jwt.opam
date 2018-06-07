@@ -1,21 +1,13 @@
 opam-version: "1.2"
-name:         "ocaml-jwt"
 maintainer:   "Danny Willems <contact@danny-willems.be>"
 author:       "Danny Willems <contact@danny-willems.be>"
-
 homepage:     "https://github.com/besport/ocaml-jwt"
 bug-reports:  "https://github.com/besport/ocaml-jwt/issues"
-
 dev-repo:     "https://github.com/besport/ocaml-jwt.git"
-
 license:      "LGPL-2.1 with OCaml linking exception"
-
-version:      "0.1"
-
-build: [make "build"]
-install: [make "install"]
-remove: [make "remove"]
-
+build: [
+  ["jbuilder" "build" "-p" name "-j" jobs]
+]
 depends: [
   "base64" {>= "2.0.0"}
   "yojson"

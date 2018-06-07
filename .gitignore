@@ -1,12 +1,4 @@
-*.a
-*.cma
-*.cmxa
-
-*.cmx
-*.cmo
-*.cmi
-*.o
-
-*.out
-
-_opam
+_opam/
+_build/
+*.install
+.merlin
