@@ -23,9 +23,7 @@
  * Public License.
 *)
 
-exception Bad_token
-
-exception Bad_payload
+type failure = [`Bad_token | `Bad_payload]
 
 (* ------------------------------- *)
 (* ---------- Algorithm ---------- *)
@@ -192,7 +190,7 @@ val find_claim :
 
 val payload_of_json :
   Yojson.Basic.json ->
-  payload
+  (payload, failure) result
 
 val json_of_payload :
   payload ->
@@ -228,7 +226,7 @@ val signature : t -> string
 
 val to_token : t -> string
 
-val of_token : string -> t
+val of_token : string -> (t, failure) result
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)

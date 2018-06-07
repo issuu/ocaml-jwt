@@ -23,9 +23,7 @@
  * Public License.
 *)
 
-exception Bad_token
-
-exception Bad_payload
+type failure = [`Bad_token | `Bad_payload]
 
 (* ------------------------------- *)
 (* ---------- Algorithm ---------- *)
@@ -211,14 +209,23 @@ let find_claim claim payload =
 
 let map f p = List.map f p
 
+let rec all_ok = function
+  | [] -> Ok []
+  | (Error e)::_ -> Error e
+  | (Ok x)::xs ->
+      match all_ok xs with
+      | Ok xs -> Ok (x::xs)
+      | Error e -> Error e
+
 let payload_of_json json =
-  List.map
-    (fun x -> match x with
-    | (claim, `String value) -> (claim, value)
-    | (claim, `Int value) -> (claim, string_of_int value)
-    | _ -> raise Bad_payload
-    )
-    (Yojson.Basic.Util.to_assoc json)
+  json
+  |> Yojson.Basic.Util.to_assoc
+  |> List.map
+    (function
+    | (claim, `String value) -> Ok (claim, value)
+    | (claim, `Int value) -> Ok (claim, string_of_int value)
+    | _ -> Error `Bad_payload)
+  |> all_ok
 
 let payload_of_string str =
   payload_of_json (Yojson.Basic.from_string str)
@@ -284,11 +291,13 @@ let of_token token =
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
         let header = header_of_string (b64_url_decode header_encoded) in
-        let payload = payload_of_string (b64_url_decode payload_encoded) in
-        let signature = b64_url_decode signature_encoded in
-        { header ; payload ; signature }
-    | _ -> raise Bad_token
-  with _ -> raise Bad_token
+        (match payload_of_string (b64_url_decode payload_encoded) with
+        | Ok payload ->
+          let signature = b64_url_decode signature_encoded in
+          Ok { header ; payload ; signature }
+        | Error e -> Error e)
+    | _ -> Error `Bad_token
+  with _ -> Error `Bad_token
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
