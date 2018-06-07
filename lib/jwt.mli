@@ -53,9 +53,9 @@ val algorithm_of_string :
 
 type header
 
-val header_of_algorithm_and_typ :
+val header_of_algorithm :
+  ?typ:string ->
   algorithm ->
-  string option ->
   header
 
 (* ------- *)

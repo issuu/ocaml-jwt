@@ -66,7 +66,7 @@ type header =
   typ : string option; (* IMPROVEME: Need a sum type *)
 }
 
-let header_of_algorithm_and_typ alg typ = { alg ; typ }
+let header_of_algorithm ?typ alg = { alg ; typ }
 
 (* ------- *)
 (* getters *)
