@@ -253,7 +253,7 @@ let b64_url_encode str =
 let b64_url_decode str =
   B64.decode ~alphabet:B64.uri_safe_alphabet str
 
-let t_of_header_and_payload header payload =
+let of_header_and_payload header payload =
   let b64_header = (b64_url_encode (string_of_header header)) in
   let b64_payload = (b64_url_encode (string_of_payload payload)) in
   let algo = fn_of_algorithm (algorithm_of_header header) in
@@ -263,22 +263,22 @@ let t_of_header_and_payload header payload =
 (* ------- *)
 (* getters *)
 
-let header_of_t t = t.header
+let header t = t.header
 
-let payload_of_t t = t.payload
+let payload t = t.payload
 
-let signature_of_t t = t.signature
+let signature t = t.signature
 
 (* getters *)
 (* ------- *)
 
-let token_of_t t =
-  let b64_header = (b64_url_encode (string_of_header (header_of_t t))) in
-  let b64_payload = (b64_url_encode (string_of_payload (payload_of_t t))) in
-  let b64_signature = (b64_url_encode (signature_of_t t)) in
+let to_token t =
+  let b64_header = (b64_url_encode (string_of_header (header t))) in
+  let b64_payload = (b64_url_encode (string_of_payload (payload t))) in
+  let b64_signature = (b64_url_encode (signature t)) in
   b64_header ^ "." ^ b64_payload ^ "." ^ b64_signature
 
-let t_of_token token =
+let of_token token =
   try
     let token_splitted = Re.Str.split_delim (Re.Str.regexp_string ".") token in
     match token_splitted with

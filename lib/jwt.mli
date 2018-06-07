@@ -210,25 +210,25 @@ val string_of_payload :
 
 type t
 
-val t_of_header_and_payload :
+val of_header_and_payload :
   header ->
   payload ->
   t
 (* ------- *)
 (* getters *)
 
-val header_of_t : t -> header
+val header : t -> header
 
-val payload_of_t : t -> payload
+val payload : t -> payload
 
-val signature_of_t : t -> string
+val signature : t -> string
 
 (* getters *)
 (* ------- *)
 
-val token_of_t : t -> string
+val to_token : t -> string
 
-val t_of_token : string -> t
+val of_token : string -> t
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
