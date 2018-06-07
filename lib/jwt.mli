@@ -190,10 +190,6 @@ val find_claim :
   payload ->
   string
 
-val string_of_payload :
-  string ->
-  payload
-
 val payload_of_json :
   Yojson.Basic.json ->
   payload
