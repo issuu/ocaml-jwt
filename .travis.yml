@@ -7,9 +7,9 @@ env:
     - DEPOPTS="*"
     - TESTS=true
   matrix:
-    - OCAML_VERSION=4.03 PACKAGE="jwt"       PINS="jwt:."
-    - OCAML_VERSION=4.04 PACKAGE="jwt"       PINS="jwt:."
-    - OCAML_VERSION=4.05 PACKAGE="jwt"       PINS="jwt:."
-    - OCAML_VERSION=4.06 PACKAGE="jwt"       PINS="jwt:."
+    - OCAML_VERSION=4.03 PACKAGE="jwt" PINS="nocrypto"
+    - OCAML_VERSION=4.04 PACKAGE="jwt" PINS="nocrypto"
+    - OCAML_VERSION=4.05 PACKAGE="jwt" PINS="nocrypto"
+    - OCAML_VERSION=4.06 PACKAGE="jwt" PINS="nocrypto"
 os:
   - linux
