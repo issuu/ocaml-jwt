@@ -260,10 +260,10 @@ let b64_url_decode str =
   B64.decode ~alphabet:B64.uri_safe_alphabet str
 
 let of_header_and_payload header payload =
-  let b64_header = (b64_url_encode (string_of_header header)) in
-  let b64_payload = (b64_url_encode (string_of_payload payload)) in
-  let algo = fn_of_algorithm (algorithm_of_header header) in
-  let unsigned_token = b64_header ^ "." ^ b64_payload in
+  let b64_header = b64_url_encode @@ string_of_header header in
+  let b64_payload = b64_url_encode @@ string_of_payload payload in
+  let algo = fn_of_algorithm @@ algorithm_of_header header in
+  let unsigned_token = Printf.sprintf "%s.%s "b64_header b64_payload in
   let signature = algo unsigned_token in
   { header ; payload ; signature }
 (* ------- *)
@@ -279,10 +279,10 @@ let signature t = t.signature
 (* ------- *)
 
 let to_token t =
-  let b64_header = (b64_url_encode (string_of_header (header t))) in
-  let b64_payload = (b64_url_encode (string_of_payload (payload t))) in
-  let b64_signature = (b64_url_encode (signature t)) in
-  b64_header ^ "." ^ b64_payload ^ "." ^ b64_signature
+  let b64_header = b64_url_encode @@ string_of_header @@ header t in
+  let b64_payload = b64_url_encode @@ string_of_payload @@ payload t in
+  let b64_signature = b64_url_encode @@ signature t in
+  Printf.sprintf "%s.%s.%s" b64_header b64_payload b64_signature
 
 let of_token token =
   try
