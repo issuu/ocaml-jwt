@@ -12,5 +12,6 @@ depends: [
   "base64" {>= "2.0.0"}
   "yojson"
   "nocrypto"
+  "cstruct"
   "re"
 ]
