@@ -193,7 +193,7 @@ let azp            = "azp"
 (* The payload a list of claim. The first component is the claim identifier and
  * the second is the value.
  *)
-type payload = (claim * string) list
+type payload = (claim * Yojson.Basic.json) list
 
 let empty_payload = []
 
@@ -205,8 +205,6 @@ let find_claim claim payload =
     List.find (fun (c, _) -> (string_of_claim c) = (string_of_claim claim)) payload
   in
   value
-
-let map f p = List.map f p
 
 let rec all_ok = function
   | [] -> Ok []
@@ -221,8 +219,8 @@ let payload_of_json json =
   |> Yojson.Basic.Util.to_assoc
   |> List.map
     (function
-    | (claim, `String value) -> Ok (claim, value)
-    | (claim, `Int value) -> Ok (claim, string_of_int value)
+    | (claim, `String value) -> Ok (claim, `String value)
+    | (claim, `Int value) -> Ok (claim, `Int value)
     | _ -> Error `Bad_payload)
   |> all_ok
 
@@ -231,8 +229,8 @@ let payload_of_string str =
 
 let json_of_payload payload =
   let members =
-    map
-      (fun (claim, value) -> ((string_of_claim claim), `String value))
+    List.map
+      (fun (claim, value) -> ((string_of_claim claim), value))
       payload
   in
   `Assoc members

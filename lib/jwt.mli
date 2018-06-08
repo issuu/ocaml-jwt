@@ -174,14 +174,14 @@ val empty_payload : payload
 
 val add_claim :
   claim   ->
-  string  ->
+  Yojson.Basic.json  ->
   payload ->
   payload
 
 val find_claim :
   claim ->
   payload ->
-  string
+  Yojson.Basic.json
 
 val payload_of_json :
   Yojson.Basic.json ->
