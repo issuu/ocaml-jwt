@@ -290,13 +290,13 @@ let of_token token =
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
         (match header_of_string (b64_url_decode header_encoded) with
-          | Error e -> Error e
+          | Error _ as e -> e
           | Ok header ->
             (match payload_of_string (b64_url_decode payload_encoded) with
+            | Error _ as e -> e
             | Ok payload ->
               let signature = b64_url_decode signature_encoded in
-              Ok { header ; payload ; signature }
-            | Error e -> Error e))
+              Ok { header ; payload ; signature }))
     | _ -> Error `Bad_token
   with _ -> Error `Bad_token
 
