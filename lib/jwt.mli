@@ -4,8 +4,6 @@
  * Copyright (C) Be Sport
  * Author Danny Willems
  *
- * This program is released under the LGPL version 2.1 or later (see the text
- * below) with the additional exemption that compiling, linking, and/or using
  * OpenSSL is allowed.
  *
  * As a special exception to the GNU Library General Public License, you
@@ -31,17 +29,14 @@ type failure = [`Bad_token | `Bad_payload]
 (* IMPROVEME: add other algorithm *)
 type algorithm =
   | RS256 of Nocrypto.Rsa.priv
-  | HS256 of string (* the argument is the secret key *)
-  | HS512 of string (* the argument is the secret key *)
-  | Unknown
+  | HS256 of Cstruct.t
+  | HS512 of Cstruct.t
 
 val string_of_algorithm :
   algorithm ->
   string
 
-val algorithm_of_string :
-  string    ->
-  algorithm
+val algorithm_of_string : string -> (algorithm, [`Bad_payload]) result
 
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
@@ -71,9 +66,9 @@ val string_of_header : header -> string
 
 val json_of_header : header -> Yojson.Basic.json
 
-val header_of_string : string -> header
+val header_of_string : string -> (header, [`Bad_payload]) result
 
-val header_of_json : Yojson.Basic.json -> header
+val header_of_json : Yojson.Basic.json -> (header, [`Bad_payload]) result
 
 (* ----------- Header ---------- *)
 (* ----------------------------- *)

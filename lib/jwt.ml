@@ -31,26 +31,23 @@ type failure = [`Bad_token | `Bad_payload]
 (* IMPROVEME: add other algorithm *)
 type algorithm =
   | RS256 of Nocrypto.Rsa.priv
-  | HS256 of string (* the argument is the secret key *)
-  | HS512 of string (* the argument is the secret key *)
-  | Unknown
+  | HS256 of Cstruct.t
+  | HS512 of Cstruct.t
 
 let fn_of_algorithm = function
   | RS256 key -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
-  | HS256 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 x)
-  | HS512 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha512 x)
-  | Unknown -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 "")
+  | HS256 key -> (fun input_str -> Nocrypto.Hash.SHA256.hmac ~key (Cstruct.of_string input_str) |> Cstruct.to_string)
+  | HS512 key -> (fun input_str -> Nocrypto.Hash.SHA512.hmac ~key (Cstruct.of_string input_str) |> Cstruct.to_string)
 
 let string_of_algorithm = function
   | RS256 _ -> "RS256"
   | HS256 _ -> "HS256"
   | HS512 _ -> "HS512"
-  | Unknown -> ""
 
 let algorithm_of_string = function
-  | "HS256" -> HS256 ""
-  | "HS512" -> HS512 ""
-  | _       -> Unknown
+  (* | "HS256" -> HS256 "" *)
+  (* | "HS512" -> HS512 "" *)
+  | _       -> Error `Bad_payload
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
 
@@ -89,7 +86,9 @@ let string_of_header header =
 let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
   let typ = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) in
-  { alg = algorithm_of_string alg ; typ }
+  match algorithm_of_string alg with
+  | Ok alg -> Ok { alg; typ }
+  | e -> e
 
 let header_of_string str =
   header_of_json (Yojson.Basic.from_string str)
@@ -290,12 +289,14 @@ let of_token token =
     let token_splitted = Re.Str.split_delim (Re.Str.regexp_string ".") token in
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
-        let header = header_of_string (b64_url_decode header_encoded) in
-        (match payload_of_string (b64_url_decode payload_encoded) with
-        | Ok payload ->
-          let signature = b64_url_decode signature_encoded in
-          Ok { header ; payload ; signature }
-        | Error e -> Error e)
+        (match header_of_string (b64_url_decode header_encoded) with
+          | Error e -> Error e
+          | Ok header ->
+            (match payload_of_string (b64_url_decode payload_encoded) with
+            | Ok payload ->
+              let signature = b64_url_decode signature_encoded in
+              Ok { header ; payload ; signature }
+            | Error e -> Error e))
     | _ -> Error `Bad_token
   with _ -> Error `Bad_token
 
