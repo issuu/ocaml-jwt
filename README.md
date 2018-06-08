@@ -93,7 +93,7 @@ You can get the token representation of a type `t` with `Jwt.to_token`.
 
 #### Decode a token.
 
-As JWT data are encoded with base 64, we can retrieve the information like the
+As JWT data are encoded in base64, we can retrieve the information like the
 header and the payload from the token.
 
 You can use `Jwt.of_token` to get a type `t` with the header and the payload
