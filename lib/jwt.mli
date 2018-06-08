@@ -48,6 +48,7 @@ type header
 
 val header_of_algorithm :
   ?typ:string ->
+  ?additional_fields:(string * Yojson.Basic.json) list ->
   algorithm ->
   header
 

@@ -59,9 +59,11 @@ type header =
 {
   alg : algorithm ;
   typ : string option; (* IMPROVEME: Need a sum type *)
+  fields: (string * Yojson.Basic.json) list;
 }
 
-let header_of_algorithm ?typ alg = { alg ; typ }
+let header_of_algorithm ?typ ?(additional_fields=[]) alg =
+  { alg ; typ; fields=additional_fields }
 
 (* ------- *)
 (* getters *)
@@ -73,12 +75,18 @@ let typ_of_header h = h.typ
 (* getters *)
 (* ------- *)
 
+let maybe_cons f xs =
+  match f () with
+  | None -> xs
+  | Some x -> x::xs
+
 let json_of_header header =
-  `Assoc
-    (("alg", `String (string_of_algorithm (algorithm_of_header header))) ::
-     (match typ_of_header header with
-      | Some typ -> [("typ", `String typ)]
-      | None -> []))
+  ("alg", `String (string_of_algorithm @@ algorithm_of_header header)) :: header.fields
+  |> maybe_cons (fun () ->
+      match typ_of_header header with
+      | Some typ -> Some ("typ", `String typ)
+      | None -> None)
+  |> (fun fields -> `Assoc fields)
 
 let string_of_header header =
   let json = json_of_header header in Yojson.Basic.to_string json
@@ -87,7 +95,7 @@ let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
   let typ = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) in
   match algorithm_of_string alg with
-  | Ok alg -> Ok { alg; typ }
+  | Ok alg -> Ok { alg; typ; fields=[] }
   | e -> e
 
 let header_of_string str =
